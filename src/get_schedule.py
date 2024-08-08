@@ -6,10 +6,11 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from gcsa.recurrence import SU, MO, TU, WE, TH, FR, SA
+from personal_info import USERNAME_SECRET, PASSWORD_SECRET
 
 '''MODIFY INFORMATION BELOW'''
-USERNAME = 'kgalvez'
-PASSWORD = 'BlazingWater12345'
+USERNAME = USERNAME_SECRET
+PASSWORD = PASSWORD_SECRET
 
 LOGIN_PAGE = "https://cas.ucdavis.edu/cas/login?service=https%3A%2F%2Fmy%2Eucdavis%2Eedu%2Flogin%2Findex%2Ecfm%3Fredirect%3DaHR0cHM6Ly9teS51Y2RhdmlzLmVkdS9pbmRleC5jZm0%3D"
 SCHEDULE_URL = "https://my.ucdavis.edu/schedulebuilder/index.cfm?termCode=202403&helpTour="
@@ -82,6 +83,11 @@ for element in days_elements:
     if 'F' in element.text:
         day.append(FR)
     days.append(day)
+
+class_time_elements = driver.find_elements(By.CLASS_NAME, "class-time")
+
+
+bldg_elements = driver.find_elements(By.CLASS_NAME, "bldg")
 
 
 for i in range(len(class_names)):
