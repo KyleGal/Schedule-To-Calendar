@@ -7,6 +7,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from gcsa.recurrence import SU, MO, TU, WE, TH, FR, SA
 from personal_info import USERNAME_SECRET, PASSWORD_SECRET
+from datetime import datetime
 
 '''MODIFY INFORMATION BELOW'''
 USERNAME = USERNAME_SECRET
@@ -21,15 +22,16 @@ NUMBER_OF_CLASSES_IN_SCHEDULE = 6
 '''DO NOT MODIFY BELOW'''
 google_calendar_objects = []
 class google_calendar_object:
-    def __init__(self, is_quarter=True, class_name="", days=[], time="", location=""):
+    def __init__(self, is_quarter=True, class_name="", days=[], start_time=datetime.now(), end_time=datetime.now(), location=""):
         self.is_quarter = is_quarter
         self.class_name = class_name
         self.days = days
-        self.time = time
+        self.start_time = start_time
+        self.end_time = end_time
         self.location = location
 
 # Chrome Driver Setup
-CHROME_DRIVER_PATH = "/Users/kylegabrielgalvez/Desktop/SP/calendar/chromedriver"
+CHROME_DRIVER_PATH = "/Users/kylegabrielgalvez/SP/calendar/chromedriver"
 
 service = Service(executable_path=CHROME_DRIVER_PATH)
 options = Options()
@@ -83,13 +85,48 @@ for element in days_elements:
     if 'F' in element.text:
         day.append(FR)
     days.append(day)
+print(days)
+
 
 class_time_elements = driver.find_elements(By.CLASS_NAME, "class-time")
+class_times = []
+for element in class_time_elements:
+    start_time_str, end_time_str = element.text.split('-')
+
+    # check if AM or PM
+    if 'AM' in end_time_str or 'PM' in end_time_str:
+        meridiem = end_time_str[-2:]
+    else:
+        raise ValueError("AM or PM not specified!")
+    
+    if 'AM' not in start_time_str and 'PM' not in start_time_str:
+        start_time_str += f' {meridiem}'
+    
+    start_time_str = start_time_str.strip()
+    end_time_str = end_time_str.strip()
+
+    datetime_format = '%I:%M %p'
+
+    start_time = datetime.strptime(start_time_str, datetime_format)
+    end_time = datetime.strptime(end_time_str, datetime_format)
+
+    class_times.append([start_time, end_time])
+print(class_times)
 
 
 bldg_elements = driver.find_elements(By.CLASS_NAME, "bldg")
+bldg_names = [element.text for element in bldg_elements]
+
+room_elements = driver.find_elements(By.CLASS_NAME, "room")
+room_names = [element.text for element in room_elements]
+
+location = []
+for i in range(len(bldg_names)):
+    location.append(bldg_names[i] + ' ' + room_names[i])
+print(location)
 
 
+# create event objects for each class
 for i in range(len(class_names)):
     new_class = google_calendar_object(is_quarter, class_names[i], days[i], )
 
