@@ -16,11 +16,15 @@ PASSWORD = PASSWORD_SECRET
 LOGIN_PAGE = "https://cas.ucdavis.edu/cas/login?service=https%3A%2F%2Fmy%2Eucdavis%2Eedu%2Flogin%2Findex%2Ecfm%3Fredirect%3DaHR0cHM6Ly9teS51Y2RhdmlzLmVkdS9pbmRleC5jZm0%3D"
 SCHEDULE_URL = "https://my.ucdavis.edu/schedulebuilder/index.cfm?termCode=202403&helpTour="
 
-NUMBER_OF_CLASSES_IN_SCHEDULE = 6
+NUMBER_OF_CLASSES_IN_SCHEDULE = 1
 
 
 '''DO NOT MODIFY BELOW'''
-google_calendar_objects = []
+QUARTER_ID_XPATH = '//*[@id="pass_time_appointments"]/div[2]/div[1]'
+CLASS_NAME_CLASS = 'className'
+DAYS_CLASS = 'days'
+
+
 class google_calendar_object:
     def __init__(self, is_quarter=True, class_name="", days=[], start_time=datetime.now(), end_time=datetime.now(), location=""):
         self.is_quarter = is_quarter
@@ -30,118 +34,147 @@ class google_calendar_object:
         self.end_time = end_time
         self.location = location
 
-# Chrome Driver Setup
-CHROME_DRIVER_PATH = "/Users/kylegabrielgalvez/SP/calendar/chromedriver"
 
-service = Service(executable_path=CHROME_DRIVER_PATH)
-options = Options()
-options.add_experimental_option("detach", True)
-
-driver = webdriver.Chrome(service=service, options=options)
-
-# Begin Gathering Schedule
-driver.get(LOGIN_PAGE)
-driver.maximize_window()
-
-# input login info and login
-driver.find_element(By.ID, "username").send_keys(USERNAME)
-driver.find_element(By.ID, "password").send_keys(PASSWORD + Keys.ENTER)
-
-# Click this is my device
-WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located((By.ID, "trust-browser-button")))
-driver.find_element(By.ID, "trust-browser-button").click()
-print("LOGIN SUCCESSFUL")
+def get_num_of_calendar_events():
+    num_of_events = NUMBER_OF_CLASSES_IN_SCHEDULE
+    return num_of_events
 
 
-# get Calendar Info
-is_quarter_elements = WebDriverWait(driver, 15).until(
-    EC.presence_of_element_located((By.XPATH, '//*[@id="pass_time_appointments"]/div[2]/div[1]')))
-
-is_quarter = True
-if "Summer Session" in is_quarter_elements.text:
-    is_quarter = False
-print(is_quarter)
-
-
-class_elements = driver.find_elements(By.CLASS_NAME, "className")
-
-class_names = [element.text for element in class_elements]
-print(class_names)
-
-
-days_elements = driver.find_elements(By.CLASS_NAME, "days")
-days = []
-for element in days_elements:
-    day = []
-    if 'M' in element.text:
-        day.append(MO)
-    if 'T' in element.text:
-        day.append(TU)
-    if 'W' in element.text:
-        day.append(WE)
-    if 'Th' in element.text:
-        day.append(TH)
-    if 'F' in element.text:
-        day.append(FR)
-    days.append(day)
-print(days)
-
-
-class_time_elements = driver.find_elements(By.CLASS_NAME, "class-time")
-class_times = []
-for element in class_time_elements:
-    start_time_str, end_time_str = element.text.split('-')
-
-    # check if AM or PM
-    if 'AM' in end_time_str or 'PM' in end_time_str:
-        meridiem = end_time_str[-2:]
-    else:
-        raise ValueError("AM or PM not specified!")
+def get_is_quarter(driver = webdriver.Chrome()):
+    is_quarter_elements = WebDriverWait(driver, 15).until(
+        EC.presence_of_element_located((By.XPATH, QUARTER_ID_XPATH)))
     
-    if 'AM' not in start_time_str and 'PM' not in start_time_str:
-        start_time_str += f' {meridiem}'
+    is_quarter = True
+    if "Summer Session" in is_quarter_elements.text:
+        is_quarter = False
     
-    start_time_str = start_time_str.strip()
-    end_time_str = end_time_str.strip()
-
-    datetime_format = '%I:%M %p'
-
-    start_time = datetime.strptime(start_time_str, datetime_format)
-    end_time = datetime.strptime(end_time_str, datetime_format)
-
-    class_times.append([start_time, end_time])
-print(class_times)
+    return is_quarter
 
 
-bldg_elements = driver.find_elements(By.CLASS_NAME, "bldg")
-bldg_names = [element.text for element in bldg_elements]
+def get_class_names(driver = webdriver.Chrome()):
+    class_elements = driver.find_elements(By.CLASS_NAME, CLASS_NAME_CLASS)
 
-room_elements = driver.find_elements(By.CLASS_NAME, "room")
-room_names = [element.text for element in room_elements]
+    class_names = [element.text for element in class_elements]
 
-location = []
-for i in range(len(bldg_names)):
-    location.append(bldg_names[i] + ' ' + room_names[i])
-print(location)
+    return class_names
 
 
-# create event objects for each class
-for i in range(len(class_names)):
-    new_class = google_calendar_object(is_quarter, class_names[i], days[i], )
+def get_class_days(driver = webdriver.Chrome()):
+    days_elements = driver.find_elements(By.CLASS_NAME, DAYS_CLASS)
+    days = []
 
-driver.quit()
+    for element in days_elements:
+        day = []
+        if 'M' in element.text:
+            day.append(MO)
+        if 'T' in element.text:
+            day.append(TU)
+        if 'W' in element.text:
+            day.append(WE)
+        if 'Th' in element.text:
+            day.append(TH)
+        if 'F' in element.text:
+            day.append(FR)
+        days.append(day)
+
+    return days
+
+def get_class_times(driver = webdriver.Chrome()):
+    class_time_elements = driver.find_elements(By.CLASS_NAME, "class-time")
+    class_times = []
+    for element in class_time_elements:
+        start_time_str, end_time_str = element.text.split('-')
+
+        # check if AM or PM
+        if 'AM' in end_time_str or 'PM' in end_time_str:
+            meridiem = end_time_str[-2:]
+        else:
+            raise ValueError("AM or PM not specified!")
+        
+        if 'AM' not in start_time_str and 'PM' not in start_time_str:
+            start_time_str += f' {meridiem}'
+        
+        start_time_str = start_time_str.strip()
+        end_time_str = end_time_str.strip()
+
+        datetime_format = '%I:%M %p'
+
+        start_time = datetime.strptime(start_time_str, datetime_format)
+        end_time = datetime.strptime(end_time_str, datetime_format)
+
+        class_times.append([start_time, end_time])
+    
+    return class_times
 
 
+def get_class_locations(driver = webdriver.Chrome()):
+    bldg_elements = driver.find_elements(By.CLASS_NAME, "bldg")
+    bldg_names = [element.text for element in bldg_elements]
+
+    room_elements = driver.find_elements(By.CLASS_NAME, "room")
+    room_names = [element.text for element in room_elements]
+
+    locations = []
+    for i in range(len(bldg_names)):
+        locations.append(bldg_names[i] + ' ' + room_names[i])
+    
+    return locations
 
 
-# valid_days = ['M', 'T', 'W', 'TR', 'F']
-# for i,class_name in enumerate(class_names):
-#     # find days the class is
-#     days = []
-#     j = 0
-#     while sched_data[i][j] in valid_days:
-#         days.append(sched_data[i][j])
-#         j += 1
+def get_calendar_events():
+    class_events = []
+    return class_events
 
+
+def main():
+    # Chrome Driver Setup
+    CHROME_DRIVER_PATH = "/Users/kylegabrielgalvez/SP/calendar/chromedriver"
+
+    # service = Service(executable_path=CHROME_DRIVER_PATH)
+    # options = Options()
+    # options.add_experimental_option("detach", True)
+
+    driver = webdriver.Chrome(CHROME_DRIVER_PATH)
+    driver.get('https://www.google.com')
+
+    # # Begin Gathering Schedule
+    # driver.get(LOGIN_PAGE)
+    # driver.maximize_window()
+
+    # # input login info and login
+    # driver.find_element(By.ID, "username").send_keys(USERNAME)
+    # driver.find_element(By.ID, "password").send_keys(PASSWORD + Keys.ENTER)
+
+    # # Click this is my device
+    # WebDriverWait(driver, 10).until(
+    #         EC.presence_of_element_located((By.ID, "trust-browser-button")))
+    # driver.find_element(By.ID, "trust-browser-button").click()
+    # print("LOGIN SUCCESSFUL")
+
+
+    # get Calendar Info
+
+    # is_quarter = get_is_quarter(driver)
+    # print(is_quarter)
+
+    # class_names = get_class_names(driver)
+    # print(class_names)
+
+    # class_days = get_class_days(driver)
+    # print(class_days)
+
+    # class_times = get_class_times(driver)
+    # print(class_times)
+
+    # class_locations = get_class_locations(driver)
+    # print(class_locations)
+
+    # google_calendar_objects = []
+    # for i in range(len(class_names)):
+    #     new_class = google_calendar_object(is_quarter, class_names[i], days[i], 
+    #                                        class_times[i][0], class_times[i][1], class_locations[i])
+    #     google_calendar_objects.append(new_class)
+        
+
+    # driver.quit()
 
