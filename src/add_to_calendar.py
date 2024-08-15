@@ -1,72 +1,48 @@
 from gcsa.google_calendar import GoogleCalendar
 from gcsa.event import Event
 from gcsa.recurrence import Recurrence
-from gcsa.recurrence import SU, MO, TU, WE, TH, FR, SA
 from gcsa.recurrence import SECONDLY, MINUTELY, HOURLY, \
                             DAILY, WEEKLY, MONTHLY, YEARLY
-import datetime
-from datetime import datetime
+from datetime import datetime, date
 import random
+from get_schedule import get_weekly_schedule
 
-WEEKS_IN_SS = 6
-WEEKS_IN_QUARTER = 10
+CREDENTIALS_PATH = '/Users/kylegabrielgalvez/SP/calendar/credentials.json'
+MINUTES_BEFORE_POPUP_REMINDER = 30
+FREQUENCY_OF_EVENTS = WEEKLY
 
-ADD_TO_CALENDAR = 1
+WEEKS_IN_SESSION = 10 # default is 10 for quarter
+ADD_TO_CALENDAR = 1 
 
 while ADD_TO_CALENDAR == 1:
-    continu = input("Would you like to add an event to your calendar? (Y) or (N)")
+    # get calendar info to translate to google calendar events
+    google_calendar_objects = get_weekly_schedule()
 
-    if continu == 'N':
-        ADD_TO_CALENDAR = 0
-        continue
-    elif continu == 'Y':
-        pass
-    else:
-        print("Not a valid input!")
-        continue
+    for calendar_object in google_calendar_objects:
+        if calendar_object.is_quarter == False:
+            WEEKS_IN_SESSION = 6
+        num_occurences = WEEKS_IN_SESSION * len(calendar_object.days)
 
+        start_date = date.today()
+        start_time = datetime.combine(start_date, calendar_object.start_time)
+        end_time = datetime.combine(start_date, calendar_object.end_time)
+        
+        # add events to calendar
+        # TODO: Distinguish between lecture, discussion, and lab
+        gc = GoogleCalendar(credentials_path=CREDENTIALS_PATH)
+        random_color_id = random.randint(1,11)
+        
+        event = Event(calendar_object.class_name, 
+                    start=start_time, 
+                    end=end_time,
+                    location=calendar_object.location,
+                    minutes_before_popup_reminder=MINUTES_BEFORE_POPUP_REMINDER,
+                    recurrence = [
+                        Recurrence.rule(freq=FREQUENCY_OF_EVENTS,
+                                        count=1,
+                                        by_week_day=calendar_object.days)],
+                    color_id = random_color_id)
+        gc.add_event(event)
 
-    
-    days_occuring = [MO, WE, FR]
-    num_occurences = WEEKS_IN_QUARTER * len(days_occuring)
-
-    # gather info from school website
-
-
-    quarter = input("Is this for summer session or quarter? (SS) or (Q)")
-
-    if quarter == "SS":
-        num_occurences = WEEKS_IN_SS * len(days_occuring)
-
-    
-    start_date = input("When does your session start? (mm/dd/yy)")
-
-    lecture_time_start = input("When does your lecture start? (hh:mm) 24hr clock")
-    start_date_time = start_date + " " + lecture_time_start
-    start_datetime_object = datetime.strptime(start_date_time, '%m/%d/%y %H:%M')
-    
-    lecture_time_end = input("When does your lecture end? (hh:mm) 24hr clock")
-    end_date_time = start_date + " " + lecture_time_end
-    end_datetime_object = datetime.strptime(end_date_time, '%m/%d/%y %H:%M')
-    
-
-    # add event to calendar
-    gc = GoogleCalendar(credentials_path='/Users/kylegabrielgalvez/Desktop/SP/calendar/credentials.json')
-
-    random_color_id = random.randint(1,11)
-    
-    event = Event('ECS 145 - Lecture', 
-                  start=start_datetime_object, 
-                  end=end_datetime_object, 
-                  minutes_before_popup_reminder=30,
-                  recurrence = [
-                      Recurrence.rule(freq=WEEKLY,
-                                      count=num_occurences,
-                                      by_week_day=days_occuring)],
-                  color_id = random_color_id)
-    gc.add_event(event)
-
-    # ask for final exam date
-
-    # add event to calendar
-    
+        # TODO: Add final exam date
+        

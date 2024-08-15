@@ -24,6 +24,7 @@ NUMBER_OF_CLASSES_IN_SCHEDULE = 1
 QUARTER_ID_XPATH = '//*[@id="pass_time_appointments"]/div[2]/div[1]'
 CLASS_NAME_CLASS = 'className'
 DAYS_CLASS = 'days'
+CHROME_DRIVER_PATH = "/Users/kylegabrielgalvez/SP/calendar/chromedriver"
 
 class google_calendar_object:
     def __init__(self, is_quarter=True, class_name="", days=[], start_time=datetime.now(), end_time=datetime.now(), location=""):
@@ -99,8 +100,8 @@ def get_class_times(driver):
 
         datetime_format = '%I:%M %p'
 
-        start_time = datetime.strptime(start_time_str, datetime_format)
-        end_time = datetime.strptime(end_time_str, datetime_format)
+        start_time = datetime.strptime(start_time_str, datetime_format).time()
+        end_time = datetime.strptime(end_time_str, datetime_format).time()
 
         class_times.append([start_time, end_time])
     
@@ -121,61 +122,59 @@ def get_class_locations(driver):
     return locations
 
 
-def get_calendar_events():
-    class_events = []
-    return class_events
-
-
-try:
-    # Chrome Driver Setup
-    CHROME_DRIVER_PATH = "/Users/kylegabrielgalvez/SP/calendar/chromedriver"
-
-    service = Service(executable_path=CHROME_DRIVER_PATH)
-    options = Options()
-    options.add_experimental_option("detach", True)
-
-    driver = webdriver.Chrome(service=service, options=options)
-
-    # Begin Gathering Schedule
-    driver.get(LOGIN_PAGE)
-    driver.maximize_window()
-
-    # input login info and login
-    driver.find_element(By.ID, "username").send_keys(USERNAME)
-    driver.find_element(By.ID, "password").send_keys(PASSWORD + Keys.ENTER)
-
-    # Click this is my device
-    WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.ID, "trust-browser-button")))
-    driver.find_element(By.ID, "trust-browser-button").click()
-    print("LOGIN SUCCESSFUL")
-
-    # get Calendar Info
-    is_quarter = get_is_quarter(driver)
-    class_names = get_class_names(driver)
-    class_days = get_class_days(driver)
-    class_times = get_class_times(driver)
-    class_locations = get_class_locations(driver)
-
-    # create Calendar events
-    google_calendar_objects = []
-    for i in range(len(class_names)):
-        new_class = google_calendar_object(is_quarter, class_names[i], class_days[i], 
-                                            class_times[i][0], class_times[i][1], class_locations[i])
-        google_calendar_objects.append(new_class)
-
-except NoSuchElementException as e:
-    print(f"Element not found: {e}")
-except TimeoutException as e:
-    print(f"Timeout occured: {e}")
-except WebDriverException as e:
-    print(f"WebDriver exception occured: {e}")
-except Exception as e:
-    print(f"An unexpected error occurred: {e}")
-finally:
-    # driver clean up
+def get_weekly_schedule():
     try:
-        driver.close()
-        driver.quit()
-    except WebDriverException:
-        print("Error occured while closing the driver.")
+        # Chrome Driver Setup
+        service = Service(executable_path=CHROME_DRIVER_PATH)
+        options = Options()
+        options.add_experimental_option("detach", True)
+
+        driver = webdriver.Chrome(service=service, options=options)
+
+        # Begin Gathering Schedule
+        driver.get(LOGIN_PAGE)
+        driver.maximize_window()
+
+        # input login info and login
+        driver.find_element(By.ID, "username").send_keys(USERNAME)
+        driver.find_element(By.ID, "password").send_keys(PASSWORD + Keys.ENTER)
+
+        # Click this is my device
+        WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.ID, "trust-browser-button")))
+        driver.find_element(By.ID, "trust-browser-button").click()
+        print("LOGIN SUCCESSFUL")
+
+        # get Calendar Info
+        is_quarter = get_is_quarter(driver)
+        class_names = get_class_names(driver)
+        class_days = get_class_days(driver)
+        class_times = get_class_times(driver)
+        class_locations = get_class_locations(driver)
+
+        # create Calendar events
+        google_calendar_objects = []
+        for i in range(len(class_names)):
+            new_class = google_calendar_object(is_quarter, class_names[i], class_days[i], 
+                                                class_times[i][0], class_times[i][1], class_locations[i])
+            google_calendar_objects.append(new_class)
+
+        return google_calendar_objects
+
+    except NoSuchElementException as e:
+        print(f"Element not found: {e}")
+    except TimeoutException as e:
+        print(f"Timeout occured: {e}")
+    except WebDriverException as e:
+        print(f"WebDriver exception occured: {e}")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+    finally:
+        # driver clean up
+        try:
+            driver.close()
+            driver.quit()
+        except WebDriverException:
+            print("Error occured while closing the driver.")
+        
+
