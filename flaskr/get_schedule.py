@@ -17,8 +17,6 @@ PASSWORD = PASSWORD_SECRET
 LOGIN_PAGE = "https://cas.ucdavis.edu/cas/login?service=https%3A%2F%2Fmy%2Eucdavis%2Eedu%2Flogin%2Findex%2Ecfm%3Fredirect%3DaHR0cHM6Ly9teS51Y2RhdmlzLmVkdS9pbmRleC5jZm0%3D"
 SCHEDULE_URL = "https://my.ucdavis.edu/schedulebuilder/index.cfm?termCode=202403&helpTour="
 
-NUMBER_OF_CLASSES_IN_SCHEDULE = 1
-
 
 '''DO NOT MODIFY BELOW'''
 QUARTER_ID_XPATH = '//*[@id="pass_time_appointments"]/div[2]/div[1]'
@@ -34,11 +32,6 @@ class google_calendar_object:
         self.start_time = start_time
         self.end_time = end_time
         self.location = location
-
-
-def get_num_of_calendar_events():
-    num_of_events = NUMBER_OF_CLASSES_IN_SCHEDULE
-    return num_of_events
 
 
 def get_is_quarter(driver):
@@ -122,8 +115,11 @@ def get_class_locations(driver):
     return locations
 
 
-def get_weekly_schedule():
+def get_weekly_schedule(username, password):
     try:
+        USERNAME = username
+        PASSWORD = password
+
         # Chrome Driver Setup
         service = Service(executable_path=CHROME_DRIVER_PATH)
         options = Options()

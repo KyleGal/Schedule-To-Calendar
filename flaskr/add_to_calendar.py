@@ -12,17 +12,19 @@ MINUTES_BEFORE_POPUP_REMINDER = 30
 FREQUENCY_OF_EVENTS = WEEKLY
 
 WEEKS_IN_SESSION = 10 # default is 10 for quarter
-ADD_TO_CALENDAR = 1 
 
-while ADD_TO_CALENDAR == 1:
+
+def add_to_calendar(username, password):
     # get calendar info to translate to google calendar events
-    google_calendar_objects = get_weekly_schedule()
+    google_calendar_objects = get_weekly_schedule(username, password)
 
     for calendar_object in google_calendar_objects:
         if calendar_object.is_quarter == False:
             WEEKS_IN_SESSION = 6
         num_occurences = WEEKS_IN_SESSION * len(calendar_object.days)
 
+        # TODO: change start date to be received from website
+        # TODO: Ensure start date is a weekday
         start_date = date.today()
         start_time = datetime.combine(start_date, calendar_object.start_time)
         end_time = datetime.combine(start_date, calendar_object.end_time)
@@ -39,7 +41,7 @@ while ADD_TO_CALENDAR == 1:
                     minutes_before_popup_reminder=MINUTES_BEFORE_POPUP_REMINDER,
                     recurrence = [
                         Recurrence.rule(freq=FREQUENCY_OF_EVENTS,
-                                        count=1,
+                                        count=num_occurences,
                                         by_week_day=calendar_object.days)],
                     color_id = random_color_id)
         gc.add_event(event)
