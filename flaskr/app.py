@@ -1,26 +1,32 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file
+from flask_cors import CORS, cross_origin
 from werkzeug.exceptions import BadRequest, BadRequestKeyError
 from add_to_calendar import add_to_calendar
 
 app = Flask(__name__)
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
 
-@app.route("/login", methods=['POST'])
-def run_calendar_api():
+@app.route("/")
+def main():
+    return send_file("../frontend/index.html")
+
+@app.route("/login", methods=['post'])
+def login():
     try:
         print("GETTING DATA")
-        data = request.get_json()
         
-        username = data.get('username')
-        password = data.get('password')
-
+        username = request.form['user']
+        password = request.form['pass']
+        print(username, password)
         add_to_calendar(username, password)
 
-        result = {
-            'message'  : 'Login data received',
-            'username' : username,
-            'password' : password,
-        }
-        return jsonify(result)
+        # result = {
+        #     'message'  : 'Login data received',
+        #     'username' : username,
+        #     'password' : password,
+        # }
+        return "Schedule Added" # jsonify(result)
     except BadRequest as e:
         print(f"{e}")
     
