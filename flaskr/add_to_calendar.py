@@ -1,8 +1,7 @@
 from gcsa.google_calendar import GoogleCalendar
 from gcsa.event import Event
 from gcsa.recurrence import Recurrence
-from gcsa.recurrence import SECONDLY, MINUTELY, HOURLY, \
-                            DAILY, WEEKLY, MONTHLY, YEARLY
+from gcsa.recurrence import WEEKLY
 from datetime import datetime, date
 import random
 from get_schedule import get_weekly_schedule
@@ -24,7 +23,7 @@ def add_to_calendar(username, password):
         num_occurences = WEEKS_IN_SESSION * len(calendar_object.days)
 
         # TODO: change start date to be received from website
-        # TODO: Ensure start date is a weekday
+        # TODO: Ensure start date is a weekday THINK ABOUT THE DIFFERENT DAYS A USER WILL ADD TO CALENDAR
         start_date = date.today()
         start_time = datetime.combine(start_date, calendar_object.start_time)
         end_time = datetime.combine(start_date, calendar_object.end_time)
