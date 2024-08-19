@@ -13,7 +13,7 @@ FREQUENCY_OF_EVENTS = WEEKLY
 WEEKS_IN_SESSION = 10 # default is 10 for quarter
 
 
-def add_to_calendar(username, password):
+def add_to_calendar(username, password, start_date_str):
     # get calendar info to translate to google calendar events
     google_calendar_objects = get_weekly_schedule(username, password)
 
@@ -22,9 +22,7 @@ def add_to_calendar(username, password):
             WEEKS_IN_SESSION = 6
         num_occurences = WEEKS_IN_SESSION * len(calendar_object.days)
 
-        # TODO: change start date to be received from website
-        # TODO: Ensure start date is a weekday THINK ABOUT THE DIFFERENT DAYS A USER WILL ADD TO CALENDAR
-        start_date = date.today()
+        start_date = datetime.strptime(start_date_str, "%Y-%m-%d").date()
         start_time = datetime.combine(start_date, calendar_object.start_time)
         end_time = datetime.combine(start_date, calendar_object.end_time)
         

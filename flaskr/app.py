@@ -16,10 +16,13 @@ def login():
     try:
         print("GETTING DATA")
         
+        # TODO: Ensure sure all form data is inputted
         username = request.form['user']
-        password = request.form['pass']
-        print(username, password)
-        add_to_calendar(username, password)
+        password = request.form['pass'] # TODO: Make password info secure
+        start_date = request.form['startDate']
+        print(username, password, start_date)
+
+        add_to_calendar(username, password, start_date)
 
         # result = {
         #     'message'  : 'Login data received',
