@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, send_file
+from flask import Flask, request, jsonify, send_file, render_template
 from flask_cors import CORS, cross_origin
 from werkzeug.exceptions import BadRequest, BadRequestKeyError
 from add_to_calendar import add_to_calendar
@@ -9,16 +9,15 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 
 @app.route("/")
 def main():
-    return send_file("../frontend/index.html")
+    return render_template("index.html")
 
 @app.route("/login", methods=['post'])
 def login():
     try:
         print("GETTING DATA")
         
-        # TODO: Ensure sure all form data is inputted
         username = request.form['user']
-        password = request.form['pass'] # TODO: Make password info secure
+        password = request.form['pass'] # Should be secure if sent across https
         start_date = request.form['startDate']
         print(username, password, start_date)
 
@@ -32,5 +31,3 @@ def login():
         return "Schedule Added" # jsonify(result)
     except BadRequest as e:
         print(f"{e}")
-    
-

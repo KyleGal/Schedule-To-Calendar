@@ -120,6 +120,7 @@ def get_weekly_schedule(username, password):
         USERNAME = username
         PASSWORD = password
 
+        #TODO: Have this run in the background without actually opening chrome
         # Chrome Driver Setup
         service = Service(executable_path=CHROME_DRIVER_PATH)
         options = Options()
