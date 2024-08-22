@@ -16,32 +16,35 @@ WEEKS_IN_SESSION = 10 # default is 10 for quarter
 def add_to_calendar(username, password, start_date_str):
     # get calendar info to translate to google calendar events
     google_calendar_objects = get_weekly_schedule(username, password)
+    try:
+        for calendar_object in google_calendar_objects:
+            if calendar_object.is_quarter == False:
+                WEEKS_IN_SESSION = 6
+            num_occurences = WEEKS_IN_SESSION * len(calendar_object.days)
 
-    for calendar_object in google_calendar_objects:
-        if calendar_object.is_quarter == False:
-            WEEKS_IN_SESSION = 6
-        num_occurences = WEEKS_IN_SESSION * len(calendar_object.days)
+            start_date = datetime.strptime(start_date_str, "%Y-%m-%d").date()
+            start_time = datetime.combine(start_date, calendar_object.start_time)
+            end_time = datetime.combine(start_date, calendar_object.end_time)
+            
+            # add events to calendar
+            # TODO: Distinguish between lecture, discussion, and lab
+            gc = GoogleCalendar(credentials_path=CREDENTIALS_PATH)
+            random_color_id = random.randint(1,11)
+            
+            event = Event(calendar_object.class_name, 
+                        start=start_time, 
+                        end=end_time,
+                        location=calendar_object.location,
+                        minutes_before_popup_reminder=MINUTES_BEFORE_POPUP_REMINDER,
+                        recurrence = [
+                            Recurrence.rule(freq=FREQUENCY_OF_EVENTS,
+                                            count=num_occurences,
+                                            by_week_day=calendar_object.days)],
+                        color_id = random_color_id)
+            print(event)
+            # gc.add_event(event)
 
-        start_date = datetime.strptime(start_date_str, "%Y-%m-%d").date()
-        start_time = datetime.combine(start_date, calendar_object.start_time)
-        end_time = datetime.combine(start_date, calendar_object.end_time)
-        
-        # add events to calendar
-        # TODO: Distinguish between lecture, discussion, and lab
-        gc = GoogleCalendar(credentials_path=CREDENTIALS_PATH)
-        random_color_id = random.randint(1,11)
-        
-        event = Event(calendar_object.class_name, 
-                    start=start_time, 
-                    end=end_time,
-                    location=calendar_object.location,
-                    minutes_before_popup_reminder=MINUTES_BEFORE_POPUP_REMINDER,
-                    recurrence = [
-                        Recurrence.rule(freq=FREQUENCY_OF_EVENTS,
-                                        count=num_occurences,
-                                        by_week_day=calendar_object.days)],
-                    color_id = random_color_id)
-        gc.add_event(event)
-
-        # TODO: Add final exam date
-        
+            # TODO: Add final exam date
+    except TypeError as e:
+        print(f"Type error exception occured: {e}")
+        print("Invalid Data Obtained")

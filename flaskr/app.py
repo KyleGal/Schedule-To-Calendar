@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, send_file, render_template
+from flask import Flask, request, url_for, redirect, flash, jsonify, send_file, render_template
 from flask_cors import CORS, cross_origin
 from werkzeug.exceptions import BadRequest, BadRequestKeyError
 from add_to_calendar import add_to_calendar
@@ -22,12 +22,16 @@ def login():
         print(username, password, start_date)
 
         add_to_calendar(username, password, start_date)
-
+        # TODO: HANDLE INVALID LOGIN
         # result = {
         #     'message'  : 'Login data received',
         #     'username' : username,
         #     'password' : password,
         # }
+        return render_template("index.html")
         return "Schedule Added" # jsonify(result)
     except BadRequest as e:
         print(f"{e}")
+    except Exception as e:
+        flash(f"Possible Invalid Login")
+        

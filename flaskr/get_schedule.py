@@ -120,10 +120,10 @@ def get_weekly_schedule(username, password):
         USERNAME = username
         PASSWORD = password
 
-        #TODO: Have this run in the background without actually opening chrome
         # Chrome Driver Setup
         service = Service(executable_path=CHROME_DRIVER_PATH)
         options = Options()
+        options.add_argument("--headless=new")
         options.add_experimental_option("detach", True)
 
         driver = webdriver.Chrome(service=service, options=options)
@@ -155,13 +155,14 @@ def get_weekly_schedule(username, password):
             new_class = google_calendar_object(is_quarter, class_names[i], class_days[i], 
                                                 class_times[i][0], class_times[i][1], class_locations[i])
             google_calendar_objects.append(new_class)
-
+        print("CLASS ACQUISITION SUCCESSFUL")
         return google_calendar_objects
 
     except NoSuchElementException as e:
         print(f"Element not found: {e}")
     except TimeoutException as e:
         print(f"Timeout occured: {e}")
+        print("Possible Incorrect Login")
     except WebDriverException as e:
         print(f"WebDriver exception occured: {e}")
     except Exception as e:
