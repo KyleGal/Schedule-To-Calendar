@@ -17,11 +17,16 @@ def add_to_calendar(username, password, start_date_str):
     # get calendar info to translate to google calendar events
     google_calendar_objects = get_weekly_schedule(username, password)
     try:
+        if google_calendar_objects == None:
+            return -1
+        
         for calendar_object in google_calendar_objects:
+            # Check if quarter or summer session
             if calendar_object.is_quarter == False:
                 WEEKS_IN_SESSION = 6
             num_occurences = WEEKS_IN_SESSION * len(calendar_object.days)
 
+            # Process datetimes
             start_date = datetime.strptime(start_date_str, "%Y-%m-%d").date()
             start_time = datetime.combine(start_date, calendar_object.start_time)
             end_time = datetime.combine(start_date, calendar_object.end_time)
@@ -45,6 +50,7 @@ def add_to_calendar(username, password, start_date_str):
             # gc.add_event(event)
 
             # TODO: Add final exam date
+            return 0
     except TypeError as e:
         print(f"Type error exception occured: {e}")
         print("Invalid Data Obtained")

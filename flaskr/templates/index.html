@@ -9,10 +9,27 @@
         
     </head>
     <body>
+        <!-- Title -->
         <h1 class="container text-center">Schedule to Calendar</h1>
         
+        <!-- Login Error Handling -->
+        {% block content %}
+        <div class="container" id="error_message">
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-warning d-flex justify-content-between align-items-center">
+                        {{ message }}
+                        <button id="dismiss_error" type="button" class="close" data-dismiss="alert">&times;</button>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+        {% endblock %}
+
+        <!-- Login Form -->
         <div class="container text-center">
-                    <!-- Login Input Form -->
                     <form name="login" action="login" onsubmit="return validateForm()" method="post" required>
                         <div class="row justify-content-center">
                             <!-- Username and Password -->

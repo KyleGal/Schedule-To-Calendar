@@ -35,9 +35,11 @@ class google_calendar_object:
 
 
 def get_is_quarter(driver):
+    # Locate session label text
     is_quarter_elements = WebDriverWait(driver, 15).until(
         EC.presence_of_element_located((By.XPATH, QUARTER_ID_XPATH)))
     
+    # Determine if quarter or summer session
     is_quarter = True
     if "Summer Session" in is_quarter_elements.text:
         is_quarter = False
@@ -46,17 +48,19 @@ def get_is_quarter(driver):
 
 
 def get_class_names(driver):
+    # Locate class name text
     class_elements = driver.find_elements(By.CLASS_NAME, CLASS_NAME_CLASS)
 
     class_names = [element.text for element in class_elements]
-
     return class_names
 
 
 def get_class_days(driver):
+    # Locate class days text
     days_elements = driver.find_elements(By.CLASS_NAME, DAYS_CLASS)
     days = []
 
+    # Determine what days the class takes place
     for element in days_elements:
         day = []
         if 'M' in element.text:
@@ -74,6 +78,7 @@ def get_class_days(driver):
     return days
 
 def get_class_times(driver):
+    # Locate class times text
     class_time_elements = driver.find_elements(By.CLASS_NAME, "class-time")
     class_times = []
     for element in class_time_elements:
@@ -84,15 +89,13 @@ def get_class_times(driver):
             meridiem = end_time_str[-2:]
         else:
             raise ValueError("AM or PM not specified!")
-        
         if 'AM' not in start_time_str and 'PM' not in start_time_str:
             start_time_str += f' {meridiem}'
         
+        # Time Processing
         start_time_str = start_time_str.strip()
         end_time_str = end_time_str.strip()
-
         datetime_format = '%I:%M %p'
-
         start_time = datetime.strptime(start_time_str, datetime_format).time()
         end_time = datetime.strptime(end_time_str, datetime_format).time()
 
@@ -102,12 +105,14 @@ def get_class_times(driver):
 
 
 def get_class_locations(driver):
+    # Locate class location text
     bldg_elements = driver.find_elements(By.CLASS_NAME, "bldg")
     bldg_names = [element.text for element in bldg_elements]
 
     room_elements = driver.find_elements(By.CLASS_NAME, "room")
     room_names = [element.text for element in room_elements]
 
+    # Process building room location
     locations = []
     for i in range(len(bldg_names)):
         locations.append(bldg_names[i] + ' ' + room_names[i])
@@ -155,6 +160,7 @@ def get_weekly_schedule(username, password):
             new_class = google_calendar_object(is_quarter, class_names[i], class_days[i], 
                                                 class_times[i][0], class_times[i][1], class_locations[i])
             google_calendar_objects.append(new_class)
+        
         print("CLASS ACQUISITION SUCCESSFUL")
         return google_calendar_objects
 
