@@ -19,7 +19,7 @@
         <!-- Title -->
         <h1 id="page-title" class="container text-center display-4">Schedule to Calendar</h1>
         
-        <!-- Login Error Handling -->
+        <!-- Login Error Handling Alert -->
         {% block content %}
         <div class="container" id="error_message">
             {% with messages = get_flashed_messages() %}
@@ -39,7 +39,8 @@
         <div id="login-form" class="container text-center">
                     <form name="login" action="login" onsubmit="return validateForm()" method="post" required>
                         <div class="row justify-content-center">
-                            <!-- Username and Password -->
+
+                            <!-- Username and Password Input -->
                             <div class="col">
                                 <h3 class="login-label">UC Davis Login</h3>
                                 <div class="input-group mb-3">
@@ -51,16 +52,19 @@
 
                                 <div class="alert alert-primary" role="alert">Have your Duo Mobile ready!</div>
                             </div>
-                            <!-- Calendar Start Date -->
+
+                            <!-- Calendar Start Date Input -->
                             <div id="calendar_container" class="col">
                                 <h3 class="calendar-label">Start Date</h3>
                                 <input id="startDate" name="startDate" class="form-control" type="hidden">
                                 <div id="calendar"></div>
-
                             </div>
+
                         </div>
+
                         <!-- Button to add schedule to calendar -->
                         <input id="submit-data" type="submit" class="btn btn-primary justify-content-center" value="Add Schedule to Google Calendar">
+
                     </form>
         </div>
         
@@ -77,9 +81,10 @@
                     // Update the hidden input value with the selected date
                     document.getElementById("startDate").value = dateStr;
                 }
-                
             });
         </script>
+
         <script src="/static/index.js"></script>
+        
     </body>
 </html>
