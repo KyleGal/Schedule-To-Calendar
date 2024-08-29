@@ -1,19 +1,29 @@
-/* Ensure calendar follows the label */
+#page-title {
+    margin-top: 20px;
+    margin-bottom: 40px;
+}
+
+
+.login-label {
+    margin-bottom: 20px;
+}
+
+
+.calendar-label {
+    margin-bottom: 1px;
+}
+
 .calendar-container {
     display: flex;
     flex-direction: column; /* Stack label and calendar vertically */
     align-items: flex-start; /* Align items to the left */
 }
 
-/* Hide the input field */
 #startDate {
     display: none;
 }
 
-#submit-data {
-    margin-top: 30px;
-}
 
-#page-title {
-    margin-bottom: 20px;
+#submit-data {
+    margin-top: 40px;
 }
