@@ -3,7 +3,8 @@ from gcsa.event import Event
 from gcsa.recurrence import Recurrence
 from gcsa.recurrence import WEEKLY
 from datetime import datetime, date
-import random
+from personal_info import USERNAME_SECRET, PASSWORD_SECRET
+
 from get_schedule import get_weekly_schedule
 
 CREDENTIALS_PATH = '/Users/kylegabrielgalvez/SP/calendar/credentials.json'
@@ -15,12 +16,19 @@ WEEKS_IN_SESSION = 10 # default is 10 for quarter
 
 def add_to_calendar(username, password, start_date_str):
     # get calendar info to translate to google calendar events
-    google_calendar_objects = get_weekly_schedule(username, password)
+    calendar_class_objects, calendar_final_objects = get_weekly_schedule(username, password)
     try:
-        if google_calendar_objects == None:
+        # no classes registered for
+        if calendar_class_objects == None:
+            print("NO CLASSES FOUND")
             return -1
         
-        for calendar_object in google_calendar_objects:
+        if calendar_final_objects == None:
+            print("NO FINALS SHOWN")
+        
+        # gc = GoogleCalendar(credentials_path=CREDENTIALS_PATH)
+        # add classes to calendar
+        for calendar_object in calendar_class_objects:
             # Check if quarter or summer session
             if calendar_object.is_quarter == False:
                 WEEKS_IN_SESSION = 6
@@ -33,9 +41,6 @@ def add_to_calendar(username, password, start_date_str):
             
             # add events to calendar
             # TODO: Distinguish between lecture, discussion, and lab
-            gc = GoogleCalendar(credentials_path=CREDENTIALS_PATH)
-            random_color_id = random.randint(1,11)
-            
             event = Event(calendar_object.class_name, 
                         start=start_time, 
                         end=end_time,
@@ -45,12 +50,22 @@ def add_to_calendar(username, password, start_date_str):
                             Recurrence.rule(freq=FREQUENCY_OF_EVENTS,
                                             count=num_occurences,
                                             by_week_day=calendar_object.days)],
-                        color_id = random_color_id)
+                        color_id = calendar_object.color_id)
             print(event)
             # gc.add_event(event)
+        
+        # add finals to calendar
+        for final_object in calendar_final_objects:
+            # add events to calendar
+            event = Event(final_object.class_name, 
+                        start=final_object.start_time, 
+                        end=final_object.end_time,
+                        minutes_before_popup_reminder=MINUTES_BEFORE_POPUP_REMINDER,
+                        color_id = final_object.color_id)
+            print(event)
+            #gc.add_event(event)
 
-            # TODO: Add final exam date
-            return 0
+        return 0
     except TypeError as e:
         print(f"Type error exception occured: {e}")
         print("Invalid Data Obtained")
