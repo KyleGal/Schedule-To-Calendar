@@ -1,0 +1,2 @@
+USERNAME_SECRET = 'kgalvez'
+PASSWORD_SECRET = 'BlazingWater12345'

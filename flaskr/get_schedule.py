@@ -59,58 +59,57 @@ def get_is_quarter(driver):
 def get_class_names(driver):
     # Locate class name text
     class_elements = driver.find_elements(By.CLASS_NAME, CLASS_NAME_CLASS)
-
     class_names = [element.text for element in class_elements]
-    return class_names
+
+    print("CLASS NAME: ", class_names[0])
+    return class_names[0]
 
 
 def get_class_days(driver):
     # Locate class days text
     days_elements = driver.find_elements(By.CLASS_NAME, DAYS_CLASS)
-    days = []
 
     # Determine what days the class takes place
-    for element in days_elements:
-        day = []
-        if 'M' in element.text:
-            day.append(MO)
-        if 'T' in element.text:
-            day.append(TU)
-        if 'W' in element.text:
-            day.append(WE)
-        if 'Th' in element.text:
-            day.append(TH)
-        if 'F' in element.text:
-            day.append(FR)
-        days.append(day)
+    element = days_elements[0]
+    days = []
+    if 'M' in element.text:
+        days.append(MO)
+    if 'T' in element.text:
+        days.append(TU)
+    if 'W' in element.text:
+        days.append(WE)
+    if 'Th' in element.text:
+        days.append(TH)
+    if 'F' in element.text:
+        days.append(FR)
 
+    print("DAYS: ", days)
     return days
 
 def get_class_times(driver):
     # Locate class times text
     class_time_elements = driver.find_elements(By.CLASS_NAME, "class-time")
-    class_times = []
-    for element in class_time_elements:
-        start_time_str, end_time_str = element.text.split('-')
 
-        # check if AM or PM
-        if 'AM' in end_time_str or 'PM' in end_time_str:
-            meridiem = end_time_str[-2:]
-        else:
-            raise ValueError("AM or PM not specified!")
-        if 'AM' not in start_time_str and 'PM' not in start_time_str:
-            start_time_str += f' {meridiem}'
-        
-        # Time Processing
-        start_time_str = start_time_str.strip()
-        end_time_str = end_time_str.strip()
-        datetime_format = '%I:%M %p'
-        start_time = datetime.strptime(start_time_str, datetime_format).time()
-        end_time = datetime.strptime(end_time_str, datetime_format).time()
+    element = class_time_elements[0]
+    start_time_str, end_time_str = element.text.split('-')
 
-        class_times.append([start_time, end_time])
+    # check if AM or PM
+    if 'AM' in end_time_str or 'PM' in end_time_str:
+        meridiem = end_time_str[-2:]
+    else:
+        raise ValueError("AM or PM not specified!")
+    if 'AM' not in start_time_str and 'PM' not in start_time_str:
+        start_time_str += f' {meridiem}'
     
-    return class_times
+    # Time Processing
+    start_time_str = start_time_str.strip()
+    end_time_str = end_time_str.strip()
+    datetime_format = '%I:%M %p'
+    start_time = datetime.strptime(start_time_str, datetime_format).time()
+    end_time = datetime.strptime(end_time_str, datetime_format).time()
+
+    print("CLASS TIMES:", [start_time, end_time])
+    return [start_time, end_time]
 
 
 def get_class_locations(driver):
@@ -122,50 +121,40 @@ def get_class_locations(driver):
     room_names = [element.text for element in room_elements]
 
     # Process building room location
-    locations = []
-    for i in range(len(bldg_names)):
-        locations.append(bldg_names[i] + ' ' + room_names[i])
-    
-    return locations
+    print("LOCATION: ", bldg_names[0] + ' ' + room_names[0])
+    return bldg_names[0] + ' ' + room_names[0]
 
 def get_final_times(driver):
     # Locate final times text
     final_elements = driver.find_elements(By.CLASS_NAME, 'final-time')
     final_times_texts = [element.text for element in final_elements]
+    final_time = final_times_texts[0]
 
     # process final times
-    final_times = [] # [[start_time, end_time],...]
-    for i in range(len(final_times_texts)):
-        final_time_text = final_times_texts[i].replace('Final Exam:', '').strip()
+    final_time_text = final_time.replace('Final Exam:', '').strip()
 
-        # check if final time for class is stated
-        if final_time_text[i] == '':
-            print("There is no final times stated")
-            final_times.append([None,None])
-            continue
+    # check if final time for class is stated
+    if final_time_text == '' or final_time_text == 'at':
+        print("There is no final times stated")
+        return None
 
-        # strip out start time
-        date_format = "%a. %b.%d at %I:%M%p"
-        start_time = datetime.strptime(final_time_text, date_format)
+    # strip out start time
+    date_format = "%a. %b.%d at %I:%M%p"
+    start_time = datetime.strptime(final_time_text, date_format)
 
-        # add two hours to start time to create end time
-        final_duration = timedelta(hours=2)
-        end_time = start_time + final_duration
+    # add two hours to start time to create end time
+    final_duration = timedelta(hours=2)
+    end_time = start_time + final_duration
 
-        # add our start and end times to our final times list
-        final_times.append([start_time, end_time])
-
-    return final_times
+    print("FINAL TIMES: ", [start_time, end_time])
+    return [start_time, end_time]
 
 def get_weekly_schedule(username, password):
     try:
-        USERNAME = username
-        PASSWORD = password
-
         # Chrome Driver Setup
         service = Service(executable_path=CHROME_DRIVER_PATH)
         options = Options()
-        # options.add_argument("--headless=new")
+        options.add_argument("--headless=new")
         options.add_experimental_option("detach", True)
 
         driver = webdriver.Chrome(service=service, options=options)
@@ -175,8 +164,8 @@ def get_weekly_schedule(username, password):
         driver.maximize_window()
 
         # input login info and login
-        driver.find_element(By.ID, "username").send_keys(USERNAME)
-        driver.find_element(By.ID, "password").send_keys(PASSWORD + Keys.ENTER)
+        driver.find_element(By.ID, "username").send_keys(username)
+        driver.find_element(By.ID, "password").send_keys(password + Keys.ENTER)
 
         # Click this is my device
         WebDriverWait(driver, 10).until(
@@ -194,25 +183,29 @@ def get_weekly_schedule(username, password):
         # process each class
         for each_class in class_block:
             # get info
+            print("BEFORE")
             is_quarter = get_is_quarter(each_class)
             class_names = get_class_names(each_class)
             class_days = get_class_days(each_class)
             class_times = get_class_times(each_class)
             class_locations = get_class_locations(each_class)
-            final_times = get_final_times(each_class)
+            print("AFTER")
+            final_time = get_final_times(each_class)
+            print("AFTER AFTER")
 
             # class color
             random_color_id = random.randint(1,11)
-
+            
             # create calendar class objects
-            new_class = google_calendar_class_object(is_quarter, class_names, class_days, 
-                                                class_times[0], class_times[1], class_locations)
+            new_class = google_calendar_class_object(is_quarter, class_names, class_days, class_times[0], 
+                                                     class_times[1], class_locations, random_color_id)
             calendar_class_objects.append(new_class)
 
             # create calendar final objects
-            new_final = google_calendar_final_object(class_names, 
-                                                    final_times[0], final_times[1])
-            calendar_final_objects.append(new_final)
+            if final_time != None:
+                new_final = google_calendar_final_object(class_names, 
+                                                    final_time[0], final_time[1], random_color_id)
+                calendar_final_objects.append(new_final)
         
         print("CLASS ACQUISITION SUCCESSFUL")
         return calendar_class_objects, calendar_final_objects
@@ -226,10 +219,10 @@ def get_weekly_schedule(username, password):
         print(f"WebDriver exception occured: {e}")
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
-    # finally:
-    #     # driver clean up
-    #     try:
-    #         driver.close()
-    #         driver.quit()
-    #     except WebDriverException:
-    #         print("Error occured while closing the driver.")
+    finally:
+        # driver clean up
+        try:
+            driver.close()
+            driver.quit()
+        except WebDriverException:
+            print("Error occured while closing the driver.")
