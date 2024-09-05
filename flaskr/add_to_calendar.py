@@ -27,8 +27,8 @@ def add_to_calendar(username, password, start_date_str):
         calendar_class_objects, calendar_final_objects = get_weekly_schedule(username, password)
         
         # debug
-        print(calendar_class_objects)
-        print(calendar_final_objects)
+        # print(calendar_class_objects)
+        # print(calendar_final_objects)
 
         # Invalid Login
         if calendar_class_objects == -1 or calendar_final_objects == -1:
