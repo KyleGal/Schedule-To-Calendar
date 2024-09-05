@@ -22,12 +22,12 @@
         <!-- Login Error Handling Alert -->
         {% block content %}
         <div class="container" id="error_message">
-            {% with messages = get_flashed_messages() %}
+            {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
-                    {% for message in messages %}
-                    <div class="alert alert-warning d-flex justify-content-between align-items-center">
+                    {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show d-flex justify-content-between align-items-center" role="alert">
                         {{ message }}
-                        <button id="dismiss_error" type="button" class="btn-close" aria-label="Close"></button>
+                        <button id="dismiss_error" type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
                     </div>
                     {% endfor %}
                 {% endif %}
@@ -51,6 +51,7 @@
                                 </div>
 
                                 <div class="alert alert-primary" role="alert">Have your Duo Mobile ready!</div>
+                                <div class="alert alert-secondary" role="alert">Verify 'mySchedule' tile in UCD home page before adding to calendar!</div>
                             </div>
 
                             <!-- Calendar Start Date Input -->

@@ -37,7 +37,7 @@ class google_calendar_class_object:
 
 class google_calendar_final_object:
     def __init__(self, class_name="", start_time=datetime.now(), end_time=datetime.now(), color_id=1):
-        self.class_name = class_name + "- Final"
+        self.class_name = class_name + " - Final"
         self.start_time = start_time
         self.end_time = end_time
         self.color_id = color_id
@@ -61,7 +61,8 @@ def get_class_names(driver):
     class_elements = driver.find_elements(By.CLASS_NAME, CLASS_NAME_CLASS)
     class_names = [element.text for element in class_elements]
 
-    print("CLASS NAME: ", class_names[0])
+    # debug
+    # print("CLASS NAME: ", class_names[0])
     return class_names[0]
 
 
@@ -83,7 +84,8 @@ def get_class_days(driver):
     if 'F' in element.text:
         days.append(FR)
 
-    print("DAYS: ", days)
+    # debug
+    # print("DAYS: ", days)
     return days
 
 def get_class_times(driver):
@@ -108,7 +110,8 @@ def get_class_times(driver):
     start_time = datetime.strptime(start_time_str, datetime_format).time()
     end_time = datetime.strptime(end_time_str, datetime_format).time()
 
-    print("CLASS TIMES:", [start_time, end_time])
+    # debug
+    # print("CLASS TIMES:", [start_time, end_time])
     return [start_time, end_time]
 
 
@@ -120,8 +123,10 @@ def get_class_locations(driver):
     room_elements = driver.find_elements(By.CLASS_NAME, "room")
     room_names = [element.text for element in room_elements]
 
+    # debug
+    # print("LOCATION: ", bldg_names[0] + ' ' + room_names[0])
+
     # Process building room location
-    print("LOCATION: ", bldg_names[0] + ' ' + room_names[0])
     return bldg_names[0] + ' ' + room_names[0]
 
 def get_final_times(driver):
@@ -146,7 +151,8 @@ def get_final_times(driver):
     final_duration = timedelta(hours=2)
     end_time = start_time + final_duration
 
-    print("FINAL TIMES: ", [start_time, end_time])
+    # debug
+    # print("FINAL TIMES: ", [start_time, end_time])
     return [start_time, end_time]
 
 def get_weekly_schedule(username, password):
@@ -183,15 +189,12 @@ def get_weekly_schedule(username, password):
         # process each class
         for each_class in class_block:
             # get info
-            print("BEFORE")
             is_quarter = get_is_quarter(each_class)
             class_names = get_class_names(each_class)
             class_days = get_class_days(each_class)
             class_times = get_class_times(each_class)
             class_locations = get_class_locations(each_class)
-            print("AFTER")
             final_time = get_final_times(each_class)
-            print("AFTER AFTER")
 
             # class color
             random_color_id = random.randint(1,11)
@@ -208,6 +211,11 @@ def get_weekly_schedule(username, password):
                 calendar_final_objects.append(new_final)
         
         print("CLASS ACQUISITION SUCCESSFUL")
+
+        # debug
+        print(calendar_class_objects)
+        print(calendar_final_objects)
+              
         return calendar_class_objects, calendar_final_objects
 
     except NoSuchElementException as e:
@@ -215,6 +223,7 @@ def get_weekly_schedule(username, password):
     except TimeoutException as e:
         print(f"Timeout occured: {e}")
         print("Possible Incorrect Login")
+        return -1,-1
     except WebDriverException as e:
         print(f"WebDriver exception occured: {e}")
     except Exception as e:

@@ -4,7 +4,7 @@ from gcsa.recurrence import Recurrence
 from gcsa.recurrence import WEEKLY
 from datetime import datetime, date
 from personal_info import USERNAME_SECRET, PASSWORD_SECRET
-
+from enum import Enum
 from get_schedule import get_weekly_schedule
 
 CREDENTIALS_PATH = '/Users/kylegabrielgalvez/SP/calendar/credentials.json'
@@ -13,6 +13,11 @@ FREQUENCY_OF_EVENTS = WEEKLY
 
 WEEKS_IN_SESSION = 10 # default is 10 for quarter
 
+class LoginResult(Enum):
+    INVALID_LOGIN = -1
+    VALID_LOGIN = 0
+    NO_CLASSES_FOUND = 1
+
 
 def add_to_calendar(username, password, start_date_str):
     try:
@@ -20,9 +25,17 @@ def add_to_calendar(username, password, start_date_str):
 
         # get calendar info to translate to google calendar events
         calendar_class_objects, calendar_final_objects = get_weekly_schedule(username, password)
+        
+        # debug
+        print(calendar_class_objects)
+        print(calendar_final_objects)
+
+        # Invalid Login
+        if calendar_class_objects == -1 or calendar_final_objects == -1:
+            return LoginResult.INVALID_LOGIN
+
         if calendar_class_objects == None:
-            print("NO CLASSES FOUND")
-            return -1
+            return LoginResult.NO_CLASSES_FOUND
         else:
             
             # add classes to calendar
@@ -53,7 +66,7 @@ def add_to_calendar(username, password, start_date_str):
                 # gc.add_event(event)
         
         # add finals to calendar
-        if calendar_final_objects == None:
+        if calendar_final_objects == []:
             print("NO FINALS SHOWN")
         else:
             for final_object in calendar_final_objects:
@@ -66,7 +79,7 @@ def add_to_calendar(username, password, start_date_str):
                 print(event)
                 # gc.add_event(event)
 
-        return 0
+        return LoginResult.VALID_LOGIN
     except TypeError as e:
         print(f"Type error exception occured: {e}")
         print("Invalid Data Obtained")

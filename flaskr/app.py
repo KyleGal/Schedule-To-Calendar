@@ -2,7 +2,7 @@ from flask import Flask, request, flash, jsonify, render_template
 from flask_session import Session
 from flask_cors import CORS, cross_origin
 from werkzeug.exceptions import BadRequest, BadRequestKeyError
-from add_to_calendar import add_to_calendar
+from add_to_calendar import add_to_calendar, LoginResult
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -24,11 +24,14 @@ def login():
         start_date = request.form['startDate']
         print(username, password, start_date)
 
-        # Check valid login
-        if (add_to_calendar(username, password, start_date) == -1):
-            flash('Invalid Login!')
+        # Check login
+        return_val = add_to_calendar(username, password, start_date)
+        if return_val == LoginResult.INVALID_LOGIN:
+            flash('Login failed: Invalid credentials or Duo Mobile authentication was not approved.', 'danger')
+        elif return_val == LoginResult.NO_CLASSES_FOUND:
+            flash('No classes were found!', 'warning')
         else:
-            flash('Schedule Added!')
+            flash('Schedule successfully added!', 'success')
         
         return render_template("index.html")
     except BadRequest as e:
