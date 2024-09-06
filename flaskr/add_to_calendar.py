@@ -21,7 +21,7 @@ class LoginResult(Enum):
 
 def add_to_calendar(username, password, start_date_str):
     try:
-        # gc = GoogleCalendar(credentials_path=CREDENTIALS_PATH)
+        gc = GoogleCalendar(credentials_path=CREDENTIALS_PATH)
 
         # get calendar info to translate to google calendar events
         calendar_class_objects, calendar_final_objects = get_weekly_schedule(username, password)
@@ -62,8 +62,8 @@ def add_to_calendar(username, password, start_date_str):
                                                 count=num_occurences,
                                                 by_week_day=calendar_object.days)],
                             color_id = calendar_object.color_id)
-                print(event)
-                # gc.add_event(event)
+                # print(event)
+                gc.add_event(event)
         
         # add finals to calendar
         if calendar_final_objects == []:
@@ -76,8 +76,8 @@ def add_to_calendar(username, password, start_date_str):
                             end=final_object.end_time,
                             minutes_before_popup_reminder=MINUTES_BEFORE_POPUP_REMINDER,
                             color_id = final_object.color_id)
-                print(event)
-                # gc.add_event(event)
+                # print(event)
+                gc.add_event(event)
 
         return LoginResult.VALID_LOGIN
     except TypeError as e:
