@@ -7,11 +7,9 @@ from personal_info import USERNAME_SECRET, PASSWORD_SECRET
 from enum import Enum
 from get_schedule import get_weekly_schedule
 
-CREDENTIALS_PATH = '/Users/kylegabrielgalvez/SP/calendar/credentials.json'
+CREDENTIALS_PATH = '/Users/kylegabrielgalvez/SP/ScheduleToCalendar/credentials.json'
 MINUTES_BEFORE_POPUP_REMINDER = 30
 FREQUENCY_OF_EVENTS = WEEKLY
-
-WEEKS_IN_SESSION = 10 # default is 10 for quarter
 
 class LoginResult(Enum):
     INVALID_LOGIN = -1
@@ -20,6 +18,7 @@ class LoginResult(Enum):
 
 
 def add_to_calendar(username, password, start_date_str):
+    WEEKS_IN_SESSION = 10 # default is 10 for quarter
     try:
         gc = GoogleCalendar(credentials_path=CREDENTIALS_PATH)
 
@@ -83,3 +82,4 @@ def add_to_calendar(username, password, start_date_str):
     except TypeError as e:
         print(f"Type error exception occured: {e}")
         print("Invalid Data Obtained")
+        return -1

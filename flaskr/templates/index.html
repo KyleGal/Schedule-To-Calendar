@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang=""en">
+<html lang="en">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -17,57 +17,77 @@
     </head>
     <body>
         <!-- Title -->
-        <h1 id="page-title" class="container text-center display-4">Schedule to Calendar</h1>
+        <div id="top-banner" class="row align-items-center text-white">
+            <div class="col-auto px-5 pt-4 mx-auto py-md-4">
+                <img src="../static/img/ucdavis_logo_gold.png" class="img-fluid" style="max-width: 175px;">
+            </div>
+            <h1 class="col py-4 px-5 text-center text-md-end">Schedule to Calendar</h1>
+        </div>
         
-        <!-- Login Error Handling Alert -->
-        {% block content %}
-        <div class="container" id="error_message">
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                    <div class="alert alert-{{ category }} alert-dismissible fade show d-flex justify-content-between align-items-center" role="alert">
-                        {{ message }}
-                        <button id="dismiss_error" type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
-        </div>
-        {% endblock %}
-
-        <!-- Login Form -->
-        <div id="login-form" class="container text-center">
-                    <form name="login" action="login" onsubmit="return validateForm()" method="post" required>
-                        <div class="row justify-content-center">
-
-                            <!-- Username and Password Input -->
-                            <div class="col">
-                                <h3 class="login-label">UC Davis Login</h3>
-                                <div class="input-group mb-3">
-                                    <input name="user" type="text" class="form-control" placeholder="Username" aria-label="Username">
-                                </div>
-                                <div class="input-group mb-3">
-                                    <input name="pass" type="password" class="form-control" placeholder="Password" aria-label="Password">
-                                </div>
-
-                                <div class="alert alert-primary" role="alert">Have your Duo Mobile ready!</div>
-                                <div class="alert alert-secondary" role="alert">Verify 'mySchedule' tile in UCD home page before adding to calendar!</div>
-                            </div>
-
-                            <!-- Calendar Start Date Input -->
-                            <div id="calendar_container" class="col">
-                                <h3 class="calendar-label">Start Date</h3>
-                                <input id="startDate" name="startDate" class="form-control" type="hidden">
-                                <div id="calendar"></div>
-                            </div>
-
+        <div class="content">
+            <!-- Login Error Handling Alert -->
+            {% block content %}
+            <div class="container" id="error_message">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show d-flex justify-content-between align-items-center" role="alert">
+                            {{ message }}
+                            <button id="dismiss_error" type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
                         </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            </div>
+            {% endblock %}
 
-                        <!-- Button to add schedule to calendar -->
-                        <input id="submit-data" type="submit" class="btn btn-primary justify-content-center" value="Add Schedule to Google Calendar">
+            <!-- Login Form -->
+            <div id="login-form" class="container text-center">
+                        <form name="login" action="login" onsubmit="return validateForm()" method="post" required>
+                            <div class="row justify-content-center">
 
-                    </form>
+                                <!-- Username and Password Input -->
+                                <div class="col">
+                                    <h3 class="login-label">UC Davis Login</h3>
+                                    <div class="input-group mb-3">
+                                        <input name="user" type="text" class="form-control" placeholder="Username" aria-label="Username">
+                                    </div>
+                                    <div class="input-group mb-3">
+                                        <input name="pass" type="password" class="form-control" placeholder="Password" aria-label="Password">
+                                    </div>
+
+                                    <div class="alert alert-primary" role="alert">Have your Duo Mobile ready!</div>
+                                    <div class="alert alert-secondary" role="alert">Verify 'mySchedule' tile in UCD home page before adding to calendar!</div>
+                                </div>
+
+                                <!-- Calendar Start Date Input -->
+                                <div id="calendar_container" class="col">
+                                    <h3 class="calendar-label">Start Date</h3>
+                                    <input id="startDate" name="startDate" class="form-control" type="hidden">
+                                    <div id="calendar"></div>
+                                </div>
+
+                            </div>
+
+                            <!-- Button to add schedule to calendar -->
+                            <input id="submit-data" type="submit" class="btn btn-primary justify-content-center" value="Add Schedule to Google Calendar">
+
+                        </form>
+            </div>
         </div>
+
+        <!-- Bottom Footer -->
+        <div class="bottom-footer text-white">
+            <span class="footer-font">Copyright</span>
+            <span class="footer-font"> © </span>
+            <span class="footer-font">Kyle Gabriel Galvez - All rights reserved</span>
+            <span class="footer-font" style="padding: 5px;">·</span>
+            <span class="footer-font">
+                Privacy Policy
+                <!-- <a href="/privacy-policy/">Privacy Policy</a> -->
+            </span>
+          </div>
+
         
         <script>
             // Initialize Flatpickr directly on the div

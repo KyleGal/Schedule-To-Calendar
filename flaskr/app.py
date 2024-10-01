@@ -27,11 +27,11 @@ def login():
         # Check login
         return_val = add_to_calendar(username, password, start_date)
         if return_val == LoginResult.INVALID_LOGIN:
-            flash('Login failed: Invalid credentials or Duo Mobile authentication was not approved.', 'danger')
+            flash('Login failed: Invalid credentials or Duo Mobile authentication was not approved. Try again!', 'danger')
         elif return_val == LoginResult.NO_CLASSES_FOUND:
             flash('No classes were found!', 'warning')
         else:
-            flash('Schedule successfully added!', 'success')
+            flash('Schedule successfully added! Check you google calendar!', 'success')
         
         return render_template("index.html")
     except BadRequest as e:

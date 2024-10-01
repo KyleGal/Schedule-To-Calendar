@@ -1,11 +1,29 @@
-#page-title {
-    margin-top: 20px;
-    margin-bottom: 40px;
+html, body {
+    height: 100%;
 }
 
+img {
+    object-fit: contain;
+}
+
+#top-banner {
+    background-color: #022851;
+    margin-bottom: 1.75em;
+}
+
+.bottom-footer {
+    position: fixed;
+    background-color: #022851;
+    bottom: 0px;
+    left: 0;
+    height: 15%;
+    width: 100%;
+    text-align: center;
+    padding: 2.5em;
+}
 
 .login-label {
-    margin-bottom: 20px;
+    margin-bottom: 1.25em;
 }
 
 
@@ -25,5 +43,15 @@
 
 
 #submit-data {
-    margin-top: 40px;
+    margin-top: 2.5em;
+    background-color: #FFBF00;
+    border-color:  #FFBF00;
+}
+
+.content {
+    padding-bottom:20vh;
+}
+
+.footer-font {
+    font-size: 0.5em;
 }

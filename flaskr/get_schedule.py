@@ -10,6 +10,7 @@ from gcsa.recurrence import SU, MO, TU, WE, TH, FR, SA
 from personal_info import USERNAME_SECRET, PASSWORD_SECRET
 from datetime import datetime, timedelta
 import random
+import traceback
 
 '''MODIFY INFORMATION BELOW'''
 USERNAME = USERNAME_SECRET
@@ -23,7 +24,7 @@ SCHEDULE_URL = "https://my.ucdavis.edu/schedulebuilder/index.cfm?termCode=202403
 QUARTER_ID_XPATH = '//*[@id="pass_time_appointments"]/div[2]/div[1]'
 CLASS_NAME_CLASS = 'className'
 DAYS_CLASS = 'days'
-CHROME_DRIVER_PATH = "/Users/kylegabrielgalvez/SP/calendar/chromedriver"
+CHROME_DRIVER_PATH = "/Users/kylegabrielgalvez/SP/ScheduleToCalendar/chromedriver-mac-arm64/chromedriver"
 
 class google_calendar_class_object:
     def __init__(self, is_quarter=True, class_name="", days=[], start_time=datetime.now(), end_time=datetime.now(), location="", color_id=1):
@@ -62,16 +63,19 @@ def get_class_names(driver):
     class_names = [element.text for element in class_elements]
 
     # debug
-    # print("CLASS NAME: ", class_names[0])
+    # print("CLASS NAME: ", class_names)
     return class_names[0]
 
 
 def get_class_days(driver):
     # Locate class days text
-    days_elements = driver.find_elements(By.CLASS_NAME, DAYS_CLASS)
+    days_elements = driver.find_elements(By.CLASS_NAME, 'days')
+    # days_text = [element.text for element in days_elements]
+    
 
     # Determine what days the class takes place
     element = days_elements[0]
+    print("DAYS: ", element.text)
     days = []
     if 'M' in element.text:
         days.append(MO)
@@ -79,13 +83,13 @@ def get_class_days(driver):
         days.append(TU)
     if 'W' in element.text:
         days.append(WE)
-    if 'Th' in element.text:
+    if 'R' in element.text:
         days.append(TH)
     if 'F' in element.text:
         days.append(FR)
 
     # debug
-    # print("DAYS: ", days)
+    # print("days debug: ", days)
     return days
 
 def get_class_times(driver):
@@ -158,12 +162,11 @@ def get_final_times(driver):
 def get_weekly_schedule(username, password):
     try:
         # Chrome Driver Setup
-        service = Service(executable_path=CHROME_DRIVER_PATH)
         options = Options()
         options.add_argument("--headless=new")
         options.add_experimental_option("detach", True)
 
-        driver = webdriver.Chrome(service=service, options=options)
+        driver = webdriver.Chrome(options=options)
 
         # Begin Gathering Schedule
         driver.get(LOGIN_PAGE)
@@ -188,21 +191,25 @@ def get_weekly_schedule(username, password):
         calendar_final_objects = []
         # process each class
         for each_class in class_block:
-            # get info
             is_quarter = get_is_quarter(each_class)
             class_names = get_class_names(each_class)
-            class_days = get_class_days(each_class)
-            class_times = get_class_times(each_class)
-            class_locations = get_class_locations(each_class)
             final_time = get_final_times(each_class)
 
             # class color
             random_color_id = random.randint(1,11)
+
+
+            event_elements = each_class.find_elements(By.CSS_SELECTOR, ".row-fluid > .row-fluid:not(.final-time)")
+            for event in event_elements:
+                # get each class info
+                class_days = get_class_days(event)
+                class_times = get_class_times(event)
+                class_locations = get_class_locations(event)
             
-            # create calendar class objects
-            new_class = google_calendar_class_object(is_quarter, class_names, class_days, class_times[0], 
-                                                     class_times[1], class_locations, random_color_id)
-            calendar_class_objects.append(new_class)
+                # create calendar class objects
+                new_class = google_calendar_class_object(is_quarter, class_names, class_days, class_times[0], 
+                                                        class_times[1], class_locations, random_color_id)
+                calendar_class_objects.append(new_class)
 
             # create calendar final objects
             if final_time != None:
@@ -213,25 +220,26 @@ def get_weekly_schedule(username, password):
         print("CLASS ACQUISITION SUCCESSFUL")
 
         # debug
-        print(calendar_class_objects)
-        print(calendar_final_objects)
+        # print(calendar_class_objects)
+        # print(calendar_final_objects)
+
+        # Clean
+        driver.close()
+        driver.quit()
               
         return calendar_class_objects, calendar_final_objects
 
     except NoSuchElementException as e:
         print(f"Element not found: {e}")
+        traceback.print_exc()  # Prints the full traceback to the console
     except TimeoutException as e:
         print(f"Timeout occured: {e}")
         print("Possible Incorrect Login")
+        traceback.print_exc()  # Prints the full traceback to the console
         return -1,-1
     except WebDriverException as e:
         print(f"WebDriver exception occured: {e}")
+        traceback.print_exc()  # Prints the full traceback to the console
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
-    finally:
-        # driver clean up
-        try:
-            driver.close()
-            driver.quit()
-        except WebDriverException:
-            print("Error occured while closing the driver.")
+        traceback.print_exc()  # Prints the full traceback to the console
